@@ -35,7 +35,7 @@ func getHTML(rawURL string) (string, error) {
 	//check if the content type is correct
 	if !strings.Contains(content_type, "text/html") {
 		//log error
-		log.Fatal("Content-Type: " + content_type)
+		//log.Fatal("Content-Type: " + content_type)
 		//return the error code
 		return "", errors.New("ERROR: Content-Type: " + content_type)
 	}

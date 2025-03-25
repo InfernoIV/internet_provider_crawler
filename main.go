@@ -21,13 +21,19 @@ func main() {
 
 	//start message
 	fmt.Printf("starting crawl of: %v\n", BASE_URL)
-	//get data
-	data, err := getHTML(BASE_URL)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+
+	//create empty map
+	pages := map[string]int{}
+	//set the base to 1
+	pages[BASE_URL] = 1
+	//start crawling
+	crawlPage(BASE_URL, BASE_URL, pages)
+	//finish message
+	fmt.Println("Finished crawl")
+
+	for key, value := range pages {
+		fmt.Println("Site:", key, "Amount:", value)
 	}
-	print(data)
 }
 
 /*

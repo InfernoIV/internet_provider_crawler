@@ -73,3 +73,17 @@ type URL struct {
 
 
 */
+
+func get_hostname(url_input string) (string, error) {
+	//parse the URL
+	parsedUrl, err := url.Parse(url_input)
+	//if error
+	if err != nil {
+		//log error
+		log.Fatal(err)
+		//stop
+		return "", err
+	}
+	//only return the hostname
+	return parsedUrl.Hostname(), nil
+}
