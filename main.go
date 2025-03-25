@@ -19,11 +19,20 @@ func main() {
 	//get the url
 	BASE_URL := os.Args[1]
 
+	//start message
 	fmt.Printf("starting crawl of: %v\n", BASE_URL)
+	//get data
+	data, err := getHTML(BASE_URL)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	print(data)
 }
 
 /*
 https://gobyexample.com/command-line-arguments
 go build -o crawler && ./crawler BASE_URL
 go build -o crawler && ./crawler google.nl
+go build -o crawler && ./crawler https://wagslane.dev
 */
