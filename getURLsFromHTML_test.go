@@ -29,6 +29,41 @@ func TestGetURLsFromHTML(t *testing.T) {
 `,
 			expected: []string{"https://blog.boot.dev/path/one", "https://other.com/path/one"},
 		},
+		{
+			name:     "absolute and relative URLs 2",
+			inputURL: "https://github.com",
+			inputBody: `
+<html>
+	<body>
+		<a href="/path/two">
+			<span>Boot.dev</span>
+		</a>
+		<a href="https://otherone.com/path/three">
+			<span>Boot.dev</span>
+		</a>
+	</body>
+</html>
+`,
+			expected: []string{"https://github.com/path/two", "https://otherone.com/path/three"},
+		},
+		{
+			name:     "absolute and relative URLs 3",
+			inputURL: "https://google.com",
+			inputBody: `
+<html>
+	<body>
+		<a href="/search?q=boot.dev">
+			<span>Boot.dev</span>
+		</a>
+		<a href="https://reddit.com/r/learnprogramming/comments/1i51n07/do_bootdev_is_worth_paying_the_subscription/">
+			<span>Boot.dev</span>
+		</a>
+	</body>
+</html>
+`,
+			expected: []string{"https://google.com/search", "https://reddit.com/r/learnprogramming/comments/1i51n07/do_bootdev_is_worth_paying_the_subscription/"},
+		},
+
 		// add more test cases here
 	}
 
@@ -39,7 +74,7 @@ func TestGetURLsFromHTML(t *testing.T) {
 				t.Errorf("Test %v - '%s' FAIL: unexpected error: %v", i, tc.name, err)
 				return
 			}
-			if reflect.DeepEqual(actual, tc.expected) {
+			if !reflect.DeepEqual(actual, tc.expected) {
 				t.Errorf("Test %v - %s FAIL: expected URL: %v, actual: %v", i, tc.name, tc.expected, actual)
 			}
 		})

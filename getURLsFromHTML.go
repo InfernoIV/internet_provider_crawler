@@ -3,30 +3,41 @@
 package main
 
 import (
+	//"fmt"
+	"log"
 	"strings"
 
-	"golang.org/x/net/html"
+	"golang.org/x/net/html" //https://pkg.go.dev/golang.org/x/net/html
+	"golang.org/x/net/html/atom"
 )
 
 func getURLsFromHTML(htmlBody, rawBaseURL string) ([]string, error) {
-	r := strings.NewReader(htmlBody)
-	z := html.NewTokenizer(r)
-
-	/* TODO
-	for {
-		tt := z.Next()
-		if tt == html.ErrorToken {
-			// ...
-			return ...
-		}
-		// Process the current token.
+	doc, err := html.Parse(strings.NewReader(htmlBody))
+	if err != nil {
+		log.Fatal(err)
 	}
-	*/
-	print(z)
-	print(rawBaseURL)
-	//nodes := html.Parse(reader)
-
-	return nil, nil
+	url_list := []string{}
+	for n := range doc.Descendants() {
+		if n.Type == html.ElementNode && n.DataAtom == atom.A {
+			for _, a := range n.Attr {
+				if a.Key == "href" {
+					//check if the URI can be normalizes
+					url_found, err := normalizeURL_rawBase(a.Val, rawBaseURL)
+					//if error
+					if err != nil {
+						//log error
+						log.Fatal(err)
+						//stop
+						return []string{}, err
+					}
+					//add to url list
+					url_list = append(url_list, url_found)
+					break
+				}
+			}
+		}
+	}
+	return url_list, nil
 }
 
 /*
