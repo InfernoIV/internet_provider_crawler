@@ -29,7 +29,7 @@ func main() {
 	if maxConcurrency < 1 {
 		maxConcurrency = 1
 	}
-	
+
 	//set the config to be used by the go routines when crawling
 	cnf := config{
 		//empty map, base url is added
@@ -60,7 +60,7 @@ func main() {
 	cnf.wg.Wait()
 	
 	// finish message
-	fmt.Println("Finished crawl, time elapsed: ", time.Now().Sub(time_start))
+	fmt.Println("Finished crawl, time elapsed: ", time.Since(time_start))
 	
 	//for each key value pair (page found)
 	for key, value := range cnf.pages {
