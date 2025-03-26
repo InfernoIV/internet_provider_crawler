@@ -17,8 +17,9 @@ func normalizeURL(url_input string) (string, error) {
 		//stop
 		return "", err
 	}
+	
 	//create the normalized URL
-	normalized_URL := parsedUrl.Hostname() + parsedUrl.EscapedPath()
+	normalized_URL := parsedUrl.Scheme + "://" + parsedUrl.Hostname() + parsedUrl.EscapedPath() 
 	//return the normalized url
 	return normalized_URL, nil
 }

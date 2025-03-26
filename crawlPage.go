@@ -1,80 +1,108 @@
 package main
 
-import "log"
+import (
+	"fmt"
+	"net/url"
+	"sync"
+)
 
-func crawlPage(raw_base_url, raw_current_url string, pages map[string]int) {
-	hostname_base, err := get_hostname(raw_base_url)
-	if err != nil {
-		//log error
-		log.Fatal(err)
-		//stop
-		return
-	}
+// struct to be used in go routines
+type config struct {
+	pages              map[string]int
+	baseURL            *url.URL
+	mu                 *sync.Mutex
+	concurrencyControl chan struct{}
+	wg                 *sync.WaitGroup
+}
 
-	/*
-			hostname_current, err := get_hostname(raw_current_url)
-			if err != nil {
-				//log error
-				log.Fatal(err)
-				//stop
-				return
-			}
+// new crawlPage function (using go routines)
+func (cfg *config) crawl_page(rawCurrentURL string) {
 
+	//indication for main program to wait
+	// Increment the WaitGroup counter
+	cfg.wg.Add(1)
+	// Decrement the counter when the goroutine completes.
+	defer cfg.wg.Done()
 
-		//println("hostname_base: " + hostname_base)
-		//println("hostname_current: " + hostname_current)
-		//check if we are still on the some hostname
-		if hostname_base != hostname_current {
-			println("skipping " + hostname_current + "(not part of " + hostname_base + ")")
-			//not same hostname: stop
-			return
-		}
-	*/
+	//ensure that not too many workers are working
+	//fill the channel to indicate a worker is spawned
+	cfg.concurrencyControl <- struct{}{} // Send a signal; value does not matter.
+	//make sure to clear the channel when exiting
+	defer cfg.defer_channel_read()
 
-	//get htmlBody from url
-	htmlBody, err := getHTML(raw_current_url)
-	if err != nil {
-		//log error
-		//log.Fatal(err)
-		//stop
-		return
-	}
-	//get urls
-	url_list, err := getURLsFromHTML(htmlBody, raw_base_url)
+	//get normalized url
+	url_current, err := normalizeURL(rawCurrentURL)
 	//if error
 	if err != nil {
-		log.Fatal(err)
+		//log error
+		fmt.Println(err)
 		return
 	}
 
+	//get htmlBody from url (should error when connection is not possible or when content type is text/html): no need for error logging
+	htmlBody, err := getHTML(url_current)
+	if err != nil {
+		//stop
+		return
+	}
+
+	//get urls
+	url_list, err := getURLsFromHTML(htmlBody, url_current)
+	//if error
+	if err != nil {
+		//log error
+		fmt.Println(err)
+		//stop
+		return
+	}
+
+	//for each url
 	for i := 0; i < len(url_list); i++ {
 		//get the url
 		url_found := url_list[i]
 
+		//get the hostname
 		hostname_found, err := get_hostname(url_found)
+		//if error
 		if err != nil {
 			//log error
-			log.Fatal(err)
+			fmt.Println(err)
 			//stop
-			return
-		}
-		//check if it is the same hostname
-		if hostname_base != hostname_found {
-			//println("skipping " + hostname_found + "(not part of " + hostname_base + ")")
-			//not same hostname: stop
-			return
+			continue
 		}
 
-		//get the number of times this page was found (0 if not found)
-		url_times_found := pages[url_found]
-		//add the count
-		pages[url_found] = url_times_found + 1
-		//if found for the 1st time
-		if url_times_found == 1 {
-			//log
-			//print("url found: " + url_found)
-			//crawl this url
-			crawlPage(raw_base_url, url_found, pages)
+		//check if it is the same hostname
+		if cfg.baseURL.Hostname() != hostname_found {
+			//not same hostname: stop
+			continue
+		}
+
+		//if seen (visited?) for the first time
+		if cfg.addPageVisit(url_found) {
+			//spawn routine to dig deeper
+			go cfg.crawl_page(url_found)
 		}
 	}
+}
+
+// function that saves the page visit, and returns if it is the first time
+func (cfg *config) addPageVisit(normalized_url string) (is_first bool) {
+	//lock
+	cfg.mu.Lock()
+	//unlock
+	defer cfg.mu.Unlock()
+
+	//get the number of times this page was found (0 if not found)
+	url_times_found := cfg.pages[normalized_url]
+	//add the count
+	cfg.pages[normalized_url] = url_times_found + 1
+
+	//return if found for the 1st time
+	return cfg.pages[normalized_url] == 1
+}
+
+// function to read channel to ensure other workers can spawn
+func (cfg *config) defer_channel_read() {
+	//send signal indicating stopping of worker
+	<-cfg.concurrencyControl // Wait for sort to finish; discard sent value.
 }

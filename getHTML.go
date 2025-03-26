@@ -3,9 +3,9 @@ package main
 import (
 	"errors"
 	"io"
-	"log"
 	"net/http"
 	"strings"
+	//"fmt"
 )
 
 func getHTML(rawURL string) (string, error) {
@@ -14,8 +14,6 @@ func getHTML(rawURL string) (string, error) {
 
 	//if error
 	if err != nil {
-		//log error
-		log.Fatal(err)
 		//return error
 		return "", err
 	}
@@ -24,8 +22,6 @@ func getHTML(rawURL string) (string, error) {
 	status_code := resp.StatusCode
 	//if error code
 	if status_code >= 400 {
-		//log error
-		log.Fatal("http " + resp.Status)
 		//return the error code
 		return "", errors.New("ERROR: http " + resp.Status)
 	}
@@ -34,20 +30,20 @@ func getHTML(rawURL string) (string, error) {
 	content_type := resp.Header.Get("Content-Type")
 	//check if the content type is correct
 	if !strings.Contains(content_type, "text/html") {
-		//log error
-		//log.Fatal("Content-Type: " + content_type)
 		//return the error code
 		return "", errors.New("ERROR: Content-Type: " + content_type)
 	}
 
-	//read the data
+	//close reader when done
 	defer resp.Body.Close()
+	//start reading
 	body, err := io.ReadAll(resp.Body)
+	//if error
 	if err != nil {
-		log.Fatal(err)
+		//return error
+		return "", err
 	}
 
-	//fmt.Printf("%s", b)
-	//stub
+	//return the body
 	return string(body), nil
 }

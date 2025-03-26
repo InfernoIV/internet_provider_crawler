@@ -3,14 +3,13 @@
 package main
 
 import (
-	//"fmt"
 	"log"
 	"strings"
-
 	"golang.org/x/net/html" //https://pkg.go.dev/golang.org/x/net/html
 	"golang.org/x/net/html/atom"
 )
 
+//get the urls from html body
 func getURLsFromHTML(htmlBody, rawBaseURL string) ([]string, error) {
 	doc, err := html.Parse(strings.NewReader(htmlBody))
 	if err != nil {
@@ -32,11 +31,13 @@ func getURLsFromHTML(htmlBody, rawBaseURL string) ([]string, error) {
 					}
 					//add to url list
 					url_list = append(url_list, url_found)
+					//stop
 					break
 				}
 			}
 		}
 	}
+	//return the list
 	return url_list, nil
 }
 
