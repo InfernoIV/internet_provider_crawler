@@ -25,8 +25,8 @@ func normalizeURL(url_input string) (string, error) {
 }
 
 func normalizeURL_rawBase(url_input string, rawBaseURL string) (string, error) {
-	//parse the URL
-	parsedUrl, err := url.Parse(url_input)
+	//parse the base URL
+	parsed_base_url, err := url.Parse(rawBaseURL)
 	//if error
 	if err != nil {
 		//log error
@@ -35,24 +35,31 @@ func normalizeURL_rawBase(url_input string, rawBaseURL string) (string, error) {
 		return "", err
 	}
 
-	//check if it is relative
-	if parsedUrl.Hostname() == "" {
-		//parse the raw base URL
-		parsedUrl_raw, err2 := url.Parse(rawBaseURL)
-
-		//if error
-		if err2 != nil {
-			//log error
-			log.Fatal(err2)
-			//stop
-			return "", err2
-		}
-		//create the normalized URL
-		return parsedUrl_raw.Scheme + "://" + parsedUrl_raw.Hostname() + parsedUrl.EscapedPath(), nil
+	//parse the input URL
+	parsed_url_input, err := url.Parse(url_input)
+	//if error
+	if err != nil {
+		//log error
+		log.Fatal(err)
+		//stop
+		return "", err
 	}
-	//otherwise return full url
-	return parsedUrl.Scheme + "://" + parsedUrl.Hostname() + parsedUrl.EscapedPath(), nil
 
+	//get scheme
+	scheme := parsed_url_input.Scheme
+	//check scheme
+	if scheme == "" {
+		scheme = parsed_base_url.Scheme
+	}
+	//get hostname
+	hostname := parsed_url_input.Hostname()
+	//check if it is relative
+	if hostname == "" {
+		hostname = parsed_base_url.Hostname()
+	}
+	return_url := scheme + "://" + hostname + parsed_url_input.EscapedPath()
+	//fmt.Println("Got '", url_input, "', created '", return_url, "'")
+	return return_url, nil
 }
 
 /*

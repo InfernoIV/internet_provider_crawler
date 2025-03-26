@@ -8,6 +8,7 @@ import (
 
 // struct to be used in go routines
 type config struct {
+	maxPages           int
 	pages              map[string]int
 	baseURL            *url.URL
 	mu                 *sync.Mutex
@@ -17,7 +18,11 @@ type config struct {
 
 // new crawlPage function (using go routines)
 func (cfg *config) crawl_page(rawCurrentURL string) {
-
+	//if limit is reached
+	if cfg.page_limit_reached() {
+		//limit reached, stop
+		return
+	}
 	//indication for main program to wait
 	// Increment the WaitGroup counter
 	cfg.wg.Add(1)
@@ -38,6 +43,7 @@ func (cfg *config) crawl_page(rawCurrentURL string) {
 		fmt.Println(err)
 		return
 	}
+	fmt.Println("Crawling", url_current)
 
 	//get htmlBody from url (should error when connection is not possible or when content type is text/html): no need for error logging
 	htmlBody, err := getHTML(url_current)
@@ -105,4 +111,13 @@ func (cfg *config) addPageVisit(normalized_url string) (is_first bool) {
 func (cfg *config) defer_channel_read() {
 	//send signal indicating stopping of worker
 	<-cfg.concurrencyControl // Wait for sort to finish; discard sent value.
+}
+
+func (cfg *config) page_limit_reached() (limit_reached bool) {
+	//lock
+	cfg.mu.Lock()
+	//unlock
+	defer cfg.mu.Unlock()
+	//return if we passed the limit
+	return len(cfg.pages) >= cfg.maxPages
 }
