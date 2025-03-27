@@ -10,7 +10,7 @@ import (
 )
 
 //get the urls from html body
-func getURLsFromHTML(htmlBody, rawBaseURL string) ([]string, error) {
+func get_urls_from_html(htmlBody, rawBaseURL string) ([]string, error) {
 	doc, err := html.Parse(strings.NewReader(htmlBody))
 	if err != nil {
 		log.Fatal(err)
@@ -21,7 +21,7 @@ func getURLsFromHTML(htmlBody, rawBaseURL string) ([]string, error) {
 			for _, a := range n.Attr {
 				if a.Key == "href" {
 					//check if the URI can be normalizes
-					url_found, err := normalizeURL_rawBase(a.Val, rawBaseURL)
+					url_found, err := normalize_url_raw_base(a.Val, rawBaseURL)
 					//if error
 					if err != nil {
 						//log error

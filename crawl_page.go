@@ -36,7 +36,7 @@ func (cfg *config) crawl_page(rawCurrentURL string) {
 	defer cfg.defer_channel_read()
 
 	//get normalized url
-	url_current, err := normalizeURL(rawCurrentURL)
+	url_current, err := normalize_url(rawCurrentURL)
 	//if error
 	if err != nil {
 		//log error
@@ -46,14 +46,14 @@ func (cfg *config) crawl_page(rawCurrentURL string) {
 	fmt.Println("Crawling", url_current)
 
 	//get htmlBody from url (should error when connection is not possible or when content type is text/html): no need for error logging
-	htmlBody, err := getHTML(url_current)
+	htmlBody, err := get_html(url_current)
 	if err != nil {
 		//stop
 		return
 	}
 
 	//get urls
-	url_list, err := getURLsFromHTML(htmlBody, url_current)
+	url_list, err := get_urls_from_html(htmlBody, url_current)
 	//if error
 	if err != nil {
 		//log error

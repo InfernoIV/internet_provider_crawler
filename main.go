@@ -62,11 +62,8 @@ func main() {
 	// finish message
 	fmt.Println("Finished crawl, time elapsed: ", time.Since(time_start))
 
-	//for each key value pair (page found)
-	for key, value := range cnf.pages {
-		//print information
-		fmt.Println(value, "x ", key)
-	}
+	//print the report
+	print_report(cnf.pages, base_url)
 }
 
 // function that checks if there are enough arguments and returns the normalized url
@@ -85,7 +82,7 @@ func process_arguments(arguments []string) (string, int, int) {
 	BASE_URL := arguments[1]
 
 	// normalize URL
-	base_url, err := normalizeURL(BASE_URL)
+	base_url, err := normalize_url(BASE_URL)
 	// if error
 	if err != nil {
 		//log error
@@ -133,9 +130,29 @@ func process_arguments(arguments []string) (string, int, int) {
 	return base_url, maxConcurrency, max_pages
 }
 
+// function that will print a report of the results
+func print_report(pages map[string]int, baseURL string) {
+	//print header
+	fmt.Println("=============================")
+	fmt.Println("REPORT for", baseURL)
+	fmt.Println("=============================")
+	
+	//convert to slice of structs
+	//stub
+	//sort on highest value
+	//stub
+	//then print
+	//for each key value pair (page found)
+	for key, value := range pages {
+		//print information
+		fmt.Println("Found", value, "internal links to", key)
+	}
+}
+
 /*
 https://gobyexample.com/command-line-arguments
 go build -o crawler && ./crawler BASE_URL
 go build -o crawler && ./crawler google.nl
 go build -o crawler && ./crawler https://wagslane.dev/
+go build -o crawler && ./crawler https://wagslane.dev/ 5 100
 */

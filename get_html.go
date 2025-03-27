@@ -8,7 +8,8 @@ import (
 	//"fmt"
 )
 
-func getHTML(rawURL string) (string, error) {
+//Function that retrieves html from an url
+func get_html(rawURL string) (string, error) {
 	//get information
 	resp, err := http.Get(rawURL)
 

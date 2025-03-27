@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestGetURLsFromHTML(t *testing.T) {
+func Test_get_urls_from_html(t *testing.T) {
 	tests := []struct {
 		name      string
 		inputURL  string
@@ -69,7 +69,7 @@ func TestGetURLsFromHTML(t *testing.T) {
 
 	for i, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			actual, err := getURLsFromHTML(tc.inputBody, tc.inputURL)
+			actual, err := get_urls_from_html(tc.inputBody, tc.inputURL)
 			if err != nil {
 				t.Errorf("Test %v - '%s' FAIL: unexpected error: %v", i, tc.name, err)
 				return

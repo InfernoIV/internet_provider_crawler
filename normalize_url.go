@@ -5,7 +5,7 @@ import (
 	"net/url"
 )
 
-func normalizeURL(url_input string) (string, error) {
+func normalize_url(url_input string) (string, error) {
 	//parse the URL
 	parsedUrl, err := url.Parse(url_input)
 	//debug
@@ -24,7 +24,7 @@ func normalizeURL(url_input string) (string, error) {
 	return normalized_URL, nil
 }
 
-func normalizeURL_rawBase(url_input string, rawBaseURL string) (string, error) {
+func normalize_url_raw_base(url_input string, rawBaseURL string) (string, error) {
 	//parse the base URL
 	parsed_base_url, err := url.Parse(rawBaseURL)
 	//if error
