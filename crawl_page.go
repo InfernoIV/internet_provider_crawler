@@ -18,6 +18,8 @@ type config struct {
 
 // new crawlPage function (using go routines)
 func (cfg *config) crawl_page(rawCurrentURL string) {
+	//print progress message
+	fmt.Println("Crawling", rawCurrentURL)
 	//if limit is reached
 	if cfg.page_limit_reached() {
 		//limit reached, stop
@@ -69,6 +71,9 @@ func (cfg *config) crawl_page(rawCurrentURL string) {
 
 		//get the hostname
 		hostname_found, err := get_hostname(url_found)
+
+		//debug
+		fmt.Println("Found url", url_found)
 		//if error
 		if err != nil {
 			//log error

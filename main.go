@@ -7,7 +7,8 @@ import (
 	"strconv"
 	"sync"
 	"time"
-)
+	"sort"
+) 
 
 // # usage: ./crawler URL maxConcurrency maxPages
 func main() {
@@ -132,20 +133,34 @@ func process_arguments(arguments []string) (string, int, int) {
 
 // function that will print a report of the results
 func print_report(pages map[string]int, baseURL string) {
+	//struct definition	
+	type url_report struct {
+			url string         
+			amount_found int
+	} 
+	
+	
+
+	//stolen from https://www.geeksforgeeks.org/how-to-sort-golang-map-by-keys-or-values/
+	//make a slice
+	url_slice := make([]url_report, 0, len(pages))
+	for key, value := range pages {
+		//add url report
+		url_slice = append(url_slice, url_report{ url: key, amount_found: value})
+	}
+
+	//sort the slice (largest to smallest)
+	sort.Slice(url_slice, func(i, j int) bool { return url_slice[i].amount_found > url_slice[j].amount_found })
+	
 	//print header
 	fmt.Println("=============================")
 	fmt.Println("REPORT for", baseURL)
 	fmt.Println("=============================")
-	
-	//convert to slice of structs
-	//stub
-	//sort on highest value
-	//stub
-	//then print
-	//for each key value pair (page found)
-	for key, value := range pages {
-		//print information
-		fmt.Println("Found", value, "internal links to", key)
+
+	//for each entry in the slice
+	for _, element := range url_slice {
+		//print message
+		fmt.Println("Found", element.amount_found, "internal links to", element.url)
 	}
 }
 
@@ -155,4 +170,5 @@ go build -o crawler && ./crawler BASE_URL
 go build -o crawler && ./crawler google.nl
 go build -o crawler && ./crawler https://wagslane.dev/
 go build -o crawler && ./crawler https://wagslane.dev/ 5 100
+go build -o crawler && ./crawler https://news.ycombinator.com/ 3 25
 */
